@@ -2,7 +2,7 @@ HCTIA
 =====
 
 hctia is a small application for mass addition or deletion of a ssh key.
-Adding or deleting manually an ssh key on multiple internal virtual machines, can be quite the pain. 
+Adding or deleting manually an ssh key on multiple internal virtual machines, can be quite the pain.
 This script makes easier to add/remove entries such as these:
 ```shell
 ssh-rsa rsa/yaba/daba/dou= email@example.com

@@ -52,3 +52,25 @@ def upload_authorized_keys(
     ssh.close()
 
     file.close()
+
+
+def connect_and_execute_command(
+    host: str, port: int, username: str, ssh_key: str, command: str
+):
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect(
+        host,
+        port,
+        username=username,
+        allow_agent=True,
+        key_filename=ssh_key,
+        timeout=10,
+    )
+
+    _, stdout, stderr = ssh.exec_command(command)
+    output = "".join(stdout.readlines())
+    errors = "".join(stderr.readlines())
+
+    ssh.close()
+    return output, errors

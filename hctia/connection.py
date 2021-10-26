@@ -1,9 +1,15 @@
 import tempfile
 from typing import Dict
 
-from hctia.pages.step import construct_step
-from hctia.record import retrieve_authorized_keys, upload_authorized_keys
+from dash import html
+
+from hctia.record import (
+    connect_and_execute_command,
+    retrieve_authorized_keys,
+    upload_authorized_keys,
+)
 from hctia.settings import KEYS_FILE
+from hctia.utils import generate_step_message
 
 
 def add_to_remote_host(host: Dict, entry: str):
@@ -17,7 +23,7 @@ def add_to_remote_host(host: Dict, entry: str):
                 ssh_key=host["identityfile"][0],
             )
         except Exception as e:
-            return construct_step(
+            return generate_step_message(
                 host["alias"],
                 f"Couldn't retrieve the key, error: {e}",
                 icon="close",
@@ -30,7 +36,7 @@ def add_to_remote_host(host: Dict, entry: str):
         new_auth_file = tempfile.NamedTemporaryFile(mode="w+")
 
         if entry in entries:
-            return construct_step(
+            return generate_step_message(
                 host["alias"],
                 "Key already exists ... skipping",
                 icon="exclamation",
@@ -52,14 +58,14 @@ def add_to_remote_host(host: Dict, entry: str):
                 ssh_key=host["identityfile"][0],
             )
         except Exception as e:
-            return construct_step(
+            return generate_step_message(
                 host["alias"],
                 f"Couldn't upload the key, error: {e}",
                 icon="close",
                 color="red",
             )
 
-        return construct_step(
+        return generate_step_message(
             host["alias"], "Key added successfully", icon="check", color="green"
         )
 
@@ -75,7 +81,7 @@ def rm_from_remote_host(host: Dict, entry: str):
                 ssh_key=host["identityfile"][0],
             )
         except Exception as e:
-            return construct_step(
+            return generate_step_message(
                 host["alias"],
                 f"Couldn't retrieve the key, error: {e}",
                 icon="close",
@@ -86,7 +92,7 @@ def rm_from_remote_host(host: Dict, entry: str):
         auth_file.close()
 
         if entry not in entries:
-            return construct_step(
+            return generate_step_message(
                 host["alias"],
                 "Key doesn't exist ... skipping",
                 icon="exclamation",
@@ -109,13 +115,44 @@ def rm_from_remote_host(host: Dict, entry: str):
                 ssh_key=host["identityfile"][0],
             )
         except Exception as e:
-            return construct_step(
+            return generate_step_message(
                 host["alias"],
                 f"Couldn't upload the key, error: {e}",
                 icon="close",
                 color="red",
             )
 
-        return construct_step(
+        return generate_step_message(
             host["alias"], "Key removed successfully", icon="check", color="green"
+        )
+
+
+def execute_at_remote_host(host: Dict, command: str):
+    if host["identityfile"]:
+        try:
+            output, errors = connect_and_execute_command(
+                host=host["hostname"],
+                port=host["port"],
+                username=host["user"],
+                command=command,
+                ssh_key=host["identityfile"][0],
+            )
+        except Exception as e:
+            return generate_step_message(
+                host["alias"],
+                f"Couldn't execute the commands, error: {e}",
+                icon="close",
+                color="red",
+            )
+        return generate_step_message(
+            host["alias"],
+            [
+                "Command executed successfully",
+                html.Hr(),
+                html.P(f"{output}"),
+                html.Hr(),
+                html.P(f"{errors}"),
+            ],
+            icon="check",
+            color="green",
         )
