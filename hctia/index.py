@@ -5,6 +5,7 @@ from hctia.app import app
 from hctia.pages import execution, management
 from hctia.utils import generate_menu_classes
 
+server = app.server
 app.layout = html.Div(
     [
         dcc.Location(id="url", refresh=False),

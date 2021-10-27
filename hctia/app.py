@@ -23,4 +23,3 @@ app = dash.Dash(
     long_callback_manager=long_callback_manager,
 )
 app.title = "HCTIA"
-server = app.server
