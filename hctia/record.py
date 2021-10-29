@@ -58,17 +58,17 @@ def upload_authorized_keys(
 def mkdir_p(sftp, remote_directory):
     """Change to this directory, recursively making new folders if needed.
     Returns True if any folders were created."""
-    if remote_directory == '/':
+    if remote_directory == "/":
         # absolute path so change directory to root
-        sftp.chdir('/')
+        sftp.chdir("/")
         return
-    if remote_directory == '':
+    if remote_directory == "":
         # top-level relative directory must exist
         return
     try:
         sftp.chdir(remote_directory)  # sub-directory exists
     except IOError:
-        dirname, basename = os.path.split(remote_directory.rstrip('/'))
+        dirname, basename = os.path.split(remote_directory.rstrip("/"))
         mkdir_p(sftp, dirname)  # make parent directories
         sftp.mkdir(basename)  # sub-directory missing, so created it
         sftp.chdir(basename)
@@ -99,7 +99,9 @@ def connect_and_execute_command(
     sftp.put(bash_file.name, target_path)
     sftp.close()
 
-    _, stdout, stderr = ssh.exec_command(f"bash .hctia/{target_path}; rm .hctia/{target_path}")
+    _, stdout, stderr = ssh.exec_command(
+        f"bash .hctia/{target_path}; rm .hctia/{target_path}"
+    )
 
     output = "".join(stdout.readlines())
     errors = "".join(stderr.readlines())
